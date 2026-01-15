@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Learn It, Love It</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+<div class="max-w-3xl mx-auto p-6">
+
+  <h1 class="text-3xl font-bold text-center mb-6">
+    📚 Learn It, Love It
+  </h1>
+
+  <!-- Add topic -->
+  <form action="/topics" method="POST" class="flex gap-2 mb-6">
+    <input
+      name="title"
+      placeholder="Nuevo tema"
+      required
+      class="flex-1 p-2 border rounded"
+    />
+    <button class="bg-blue-600 text-white px-4 rounded">
+      Agregar
+    </button>
+  </form>
+
+  <% topics.forEach(topic => { %>
+    <div class="bg-white p-4 rounded shadow mb-6">
+
+      <!-- Topic header -->
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="text-xl font-semibold">
+          <%= topic.title %>
+        </h2>
+
+        <div class="flex gap-2 items-center">
+          <span id="topic-votes-<%= topic.id %>">
+            <%= topic.votes %>
+          </span>
+          <button
+            class="vote-topic bg-green-500 text-white px-2 rounded"
+            data-id="<%= topic.id %>">
+            👍
+          </button>
+        </div>
+      </div>
+
+      <!-- Add link -->
+      <form
+        action="/topics/<%= topic.id %>/links"
+        method="POST"
+        class="flex gap-2 mb-3">
+
+        <input
+          name="url"
+          placeholder="Nuevo enlace"
+          required
+          class="flex-1 p-2 border rounded"
+        />
+        <button class="bg-purple-600 text-white px-3 rounded">
+          +
+        </button>
+      </form>
+
+      <!-- Links -->
+      <ul class="space-y-2">
+        <% topic.links.forEach(link => { %>
+          <li class="flex justify-between bg-gray-50 p-2 rounded">
+
+            <a href="<%= link.url %>" target="_blank"
+               class="text-blue-600 underline break-all">
+              <%= link.url %>
+            </a>
+
+            <div class="flex gap-2 items-center">
+              <span id="link-votes-<%= link.id %>">
+                <%= link.votes %>
+              </span>
+              <button
+                class="vote-link bg-green-500 text-white px-2 rounded"
+                data-topic="<%= topic.id %>"
+                data-link="<%= link.id %>">
+                👍
+              </button>
+            </div>
+
+          </li>
+        <% }) %>
+      </ul>
+
+    </div>
+  <% }) %>
+
+</div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>
