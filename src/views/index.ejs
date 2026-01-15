@@ -8,94 +8,181 @@
 
 <body class="bg-gray-100 min-h-screen">
 
-<div class="max-w-3xl mx-auto p-6">
+  <div class="max-w-3xl mx-auto p-6">
 
-  <h1 class="text-3xl font-bold text-center mb-6">
-    📚 Learn It, Love It
-  </h1>
+    <!-- Título -->
+    <h1 class="text-3xl font-bold text-center mb-6">
+      📚 Learn It, Love It
+    </h1>
 
-  <!-- Add topic -->
-  <form action="/topics" method="POST" class="flex gap-2 mb-6">
-    <input
-      name="title"
-      placeholder="Nuevo tema"
-      required
-      class="flex-1 p-2 border rounded"
-    />
-    <button class="bg-blue-600 text-white px-4 rounded">
-      Agregar
-    </button>
-  </form>
+    <!-- Crear nuevo tema -->
+    <form action="/topics" method="POST" class="flex gap-2 mb-6">
+      <input
+        type="text"
+        name="title"
+        placeholder="Nuevo tema de aprendizaje"
+        required
+        class="flex-1 p-2 border rounded"
+      />
+      <button
+        type="submit"
+        class="bg-blue-600 text-white px-4 rounded hover:bg-blue-700">
+        Agregar
+      </button>
+    </form>
 
-  <% topics.forEach(topic => { %>
-    <div class="bg-white p-4 rounded shadow mb-6">
+    <!-- Listado de temas -->
+    <% topics.forEach(topic => { %>
+      <div class="bg-white p-4 rounded shadow mb-6">
 
-      <!-- Topic header -->
-      <div class="flex justify-between items-center mb-2">
-        <h2 class="text-xl font-semibold">
-          <%= topic.title %>
-        </h2>
+        <!-- CABECERA DEL TEMA -->
+        <div class="flex justify-between items-center mb-3">
 
-        <div class="flex gap-2 items-center">
-          <span id="topic-votes-<%= topic.id %>">
-            <%= topic.votes %>
-          </span>
-          <button
-            class="vote-topic bg-green-500 text-white px-2 rounded"
-            data-id="<%= topic.id %>">
-            👍
-          </button>
-        </div>
-      </div>
+          <!-- Vista normal -->
+          <div id="view-title-<%= topic.id %>" class="flex items-center gap-2">
+            <h2 class="text-xl font-semibold">
+              <%= topic.title %>
+            </h2>
 
-      <!-- Add link -->
-      <form
-        action="/topics/<%= topic.id %>/links"
-        method="POST"
-        class="flex gap-2 mb-3">
+            <!-- Editar (lápiz con fondo amarillo) -->
+            <button
+              type="button"
+              onclick="toggleEdit(<%= topic.id %>)"
+              class="bg-yellow-400 hover:bg-yellow-500 text-black text-sm px-2 py-1 rounded">
+              ✏️
+            </button>
+          </div>
 
-        <input
-          name="url"
-          placeholder="Nuevo enlace"
-          required
-          class="flex-1 p-2 border rounded"
-        />
-        <button class="bg-purple-600 text-white px-3 rounded">
-          +
-        </button>
-      </form>
+          <!-- Vista edición (oculta) -->
+          <form
+            id="edit-form-<%= topic.id %>"
+            action="/topics/<%= topic.id %>/update"
+            method="POST"
+            class="hidden flex gap-2">
 
-      <!-- Links -->
-      <ul class="space-y-2">
-        <% topic.links.forEach(link => { %>
-          <li class="flex justify-between bg-gray-50 p-2 rounded">
+            <input
+              type="text"
+              name="title"
+              value="<%= topic.title %>"
+              class="border p-1 rounded flex-1"
+            />
 
-            <a href="<%= link.url %>" target="_blank"
-               class="text-blue-600 underline break-all">
-              <%= link.url %>
-            </a>
+            <button
+              type="submit"
+              class="bg-yellow-500 text-white px-2 rounded hover:bg-yellow-600">
+              Guardar
+            </button>
 
-            <div class="flex gap-2 items-center">
-              <span id="link-votes-<%= link.id %>">
-                <%= link.votes %>
-              </span>
+            <button
+              type="button"
+              onclick="toggleEdit(<%= topic.id %>)"
+              class="text-gray-500 text-sm">
+              Cancelar
+            </button>
+          </form>
+
+          <!-- Votos + acciones -->
+          <div class="flex items-center gap-2">
+
+            <span
+              id="topic-votes-<%= topic.id %>"
+              class="font-bold text-gray-700">
+              <%= topic.votes %>
+            </span>
+
+            <!-- Like -->
+            <button
+              class="vote-topic bg-green-500 text-white px-2 py-1 text-sm rounded hover:bg-green-600"
+              data-id="<%= topic.id %>">
+              👍
+            </button>
+
+            <!-- Eliminar -->
+            <form
+              action="/topics/<%= topic.id %>/delete"
+              method="POST"
+              class="inline">
+
               <button
-                class="vote-link bg-green-500 text-white px-2 rounded"
-                data-topic="<%= topic.id %>"
-                data-link="<%= link.id %>">
-                👍
+                type="submit"
+                class="bg-red-500 text-white px-2 py-1 text-sm rounded hover:bg-red-600">
+                ✖
               </button>
-            </div>
+            </form>
 
-          </li>
-        <% }) %>
-      </ul>
+          </div>
+        </div>
 
-    </div>
-  <% }) %>
+        <!-- AGREGAR ENLACE -->
+        <form
+          action="/topics/<%= topic.id %>/links"
+          method="POST"
+          class="flex gap-2 mb-3">
 
-</div>
+          <input
+            type="url"
+            name="url"
+            placeholder="Agregar enlace útil"
+            required
+            class="flex-1 p-2 border rounded"
+          />
 
-<script src="/js/main.js"></script>
+          <button
+            type="submit"
+            class="bg-purple-600 text-white px-3 rounded hover:bg-purple-700">
+            +
+          </button>
+        </form>
+
+        <!-- LISTADO DE ENLACES -->
+        <ul class="space-y-2">
+          <% topic.links.forEach(link => { %>
+            <li class="flex justify-between items-center bg-gray-50 p-2 rounded">
+
+              <a
+                href="<%= link.url %>"
+                target="_blank"
+                class="text-blue-600 underline break-all">
+                <%= link.url %>
+              </a>
+
+              <div class="flex items-center gap-2">
+
+                <span
+                  id="link-votes-<%= link.id %>"
+                  class="font-semibold text-gray-600">
+                  <%= link.votes %>
+                </span>
+
+                <button
+                  class="vote-link bg-green-500 text-white px-2 py-1 text-sm rounded hover:bg-green-600"
+                  data-topic="<%= topic.id %>"
+                  data-link="<%= link.id %>">
+                  👍
+                </button>
+
+                <form
+                  action="/topics/<%= topic.id %>/links/<%= link.id %>/delete"
+                  method="POST"
+                  class="inline">
+
+                  <button
+                    type="submit"
+                    class="bg-red-400 text-white px-2 py-1 text-sm rounded hover:bg-red-500">
+                    ✖
+                  </button>
+                </form>
+
+              </div>
+            </li>
+          <% }) %>
+        </ul>
+
+      </div>
+    <% }) %>
+
+  </div>
+
+  <script src="/js/main.js"></script>
 </body>
 </html>
